@@ -3,6 +3,9 @@ MUTelstra
 
 University of Melbourne Telstra Challenge Repo.
 
-Members
-TheExtremeFlamingToaster - James Ward
-renlord - Renlord Yang 
+<p>
+###Members
+<ul>
+<li>TheExtremeFlamingToaster - James Ward </li>
+<li>renlord - Renlord Yang </li> 
+</ul>
