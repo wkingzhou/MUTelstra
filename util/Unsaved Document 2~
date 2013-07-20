@@ -1,0 +1,17 @@
+# UoM M2M Telstra Challenge
+# Python Utility
+# HTML Handling
+
+def htmltag_stripper(string):
+    while("<" in string or ">" in string):
+        start = string.index("<")
+        end = string.index(">")
+        if(start < end):
+            if(start != 0):
+                new_string = string[:start]
+                break
+            else:
+                string = string[end+1:]
+        else:
+            string = string[1:]
+    return new_string
