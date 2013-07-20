@@ -8,4 +8,5 @@ University of Melbourne Telstra Challenge Repo.
 <ul>
 <li>TheExtremeFlamingToaster - James Ward </li>
 <li>renlord - Renlord Yang </li> 
+<li>yschin - Yun Sheng Chin </li>
 </ul>
