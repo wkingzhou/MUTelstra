@@ -27,8 +27,4 @@ page = page.read()
 
 parser = victrafficHTMLParser()
 
-victrafficdata = {}
-
-toggle_data = False
-
 parser.feed(page)
