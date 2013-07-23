@@ -20,6 +20,41 @@ transport = ['trains', 'tram', 'buses']
 
 # Regular Expressions
 
+# Trains 
+def mTrain(string):
+    # train disruption keywords
+    disruption = ['replacing', 'closed', 'delays', 'disrupted']
+    
+    # train line services
+    tLines = ['cranbourne', 'pakenham', 'werribee', 'williamstown', \
+        'sandringham', 'frankston', 'craigieburn', 'alamein', \
+        'belgrave', 'lilydale', 'glen', 'waverley']
+
+    # months
+    months = ['january', 'february', 'march', 'april', 'may', 'june', \
+                'july', 'august', 'september', 'october', 'november', \
+                'december']
+    
+    #time keys
+    time = ['am', 'pm']
+
+    affected_lines = []
+
+    words = string.split()
+
+    for word in words:
+        if word.strip(',').lower() in tLines:
+            affected_lines.append(word)
+        if 'am' in word or 'pm' in word:
+            affected_time = word
+        if ':' in word:
+            n = string.index(word)
+            break
+    
+    # DICTIONARY_TYPE
+    affected_dates = dateHandler(string[n:])
+    
+    print affected_lines, affected_dates
 
 # HTML Parser
 class ptvHTMLParser(HTMLParser):
@@ -32,15 +67,15 @@ class ptvHTMLParser(HTMLParser):
                     break
             if not blocking:
                 #TEMPORARY
-                print attrs[0][1]
-                print attrs[1][1]
+                mTrain(attrs[0][1])
+        return
 
     def handle_endtag(self, tag):
         return
 
     def handle_data(self, data):
-        if toggle_data == True:
-            print data
+        return
+
 
 # Data Processing Function
 """
@@ -61,6 +96,7 @@ def build_output(ptvdata, key, data):
             break
         except KeyError:
             ptvdata[key] = []  
+    return
 
 """
 dateHandler(string)
@@ -68,24 +104,39 @@ PARAM:
     @string, string TYPE only literal date formats.
 
 RETURN:
-    disruption duration.
+    disruption dates @ DICT type
 """
 def dateHandler(string):
+    
+    disruption_dates = {}
+    
+    months = ['january', 'february', 'march', 'april', 'may', 'june', \
+                'july', 'august', 'september', 'october', 'november', \
+                'december']
+
+    # Types
+    CONTINUOUS = 0
+    DISCRETE = 1
+
     words = string.split()
     for word in words:
         try:
+            word.strip(",")
             day = int(word)
+
         except ValueError:
-            if word in months:
-                date.append((day, word))
+            if word.lower() in months:
+                if 'start' not in disruption_dates.keys():
+                    disruption_dates['start'] = (day, word)
+                else:
+                    disruption_dates['end'] = (day, word)  
             else:
                 if word == '-':
-
+                    disruption_dates['type'] = CONTINUOUS
                 if word == 'and':
-
-                
-                
-                
+                    disruption_dates['type'] = DISCRETE
+                    
+    return disruption_dates   
       
 # Main Module
 page = urllib.urlopen("http://ptv.vic.gov.au/disruptions/")
@@ -95,50 +146,17 @@ parser = ptvHTMLParser()
 
 ptvdata = {}
 
-
-
 toggle_data = False
 
 parser.feed(page)
 
-# Trains 
-def mTrain(string, url):
-    # train disruption keywords
-    disruption = ['replacing', 'closed', 'delays', 'disrupted']
-    
-    # train line services
-    tLines = ['cranbourne', 'pakenham', 'werribee', 'williamstown', \
-        'sandringham', 'frankston', 'craigieburn', 'alamein', \
-        'belgrave', 'lilydale', 'glen waverley']
 
-    # months
-    months = ['january', 'february', 'march', 'april', 'may', 'june', \
-                'july', 'august', 'september', 'october', 'november', \
-                'december']
-    
-    #time keys
-    time = ['am', 'pm']
-
-    affected_lines = []
-    affected_dates = []
-
-    words = string.split()
-
-    for word in words:
-        if word.lower() in tLines:
-            affected_lines.append(word)
-        if word.lower() in months:
-            affected_dates = 
-        
-    
-    
-    
-    
 # Tram
 def tram():
-
+    return
 # Buses
 def bus():
+    return
 
 
 
