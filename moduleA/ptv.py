@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*- 
+#
 # UoM Telstra M2M Challenge
 # HMTL Information Extractor
 # for use with PTV Website
@@ -18,7 +20,19 @@ blocked_urls = ["timetables/", "disruptions/", "tickets/myki/"]
 # Keywords 
 transport = ['trains', 'tram', 'buses']
 
-# Regular Expressions
+# Global Var.
+months = ['january', 'february', 'march', 'april', 'may', 'june', \
+          'july', 'august', 'september', 'october', 'november', 'december']
+          
+parserToggle = False
+          
+# Housekeeping Function
+def housekeeping(string):
+    'transforms string into list of words in lower case and free of puncs.'
+    words = string.split()
+    for i in range(len(words)):
+        words[i] = words[i].strip(',').lower()
+    return words
 
 # Trains 
 def mTrain(string):
@@ -29,11 +43,6 @@ def mTrain(string):
     tLines = ['cranbourne', 'pakenham', 'werribee', 'williamstown', \
         'sandringham', 'frankston', 'craigieburn', 'alamein', \
         'belgrave', 'lilydale', 'glen', 'waverley']
-
-    # months
-    months = ['january', 'february', 'march', 'april', 'may', 'june', \
-                'july', 'august', 'september', 'october', 'november', \
-                'december']
     
     #time keys
     time = ['am', 'pm']
@@ -44,81 +53,92 @@ def mTrain(string):
 
     for word in words:
         if word.strip(',').lower() in tLines:
-            affected_lines.append(word)
+            affected_lines.append(word.strip(','))
+        
         if 'am' in word or 'pm' in word:
             affected_time = word
+            
         if ':' in word:
             n = string.index(word)
             break
     
+    # Special Case: Glen Waverley processing.
+    if 'Glen' in affected_lines:
+        correction = affected_lines.index('Glen')
+        affected_lines[correction] = 'Glen Waverley'
+        affected_lines.remove('Waverley')
+        
     # DICTIONARY_TYPE
     affected_dates = dateHandler(string[n:])
     
-    print affected_lines, affected_dates
+    print affected_lines
+    print affected_dates
+
+# Tram
+def mTram(string):
+    return
+# Buses
+def mBus(string):
+    return
+# Regional Trains
+def rTrain(string):
+    return
 
 # HTML Parser
 class ptvHTMLParser(HTMLParser):
+
+    toggle_mode = 0
+    parserToggle = False
+    
+    toggle_mode = 'DEFAULT'
+    
     def handle_starttag(self, tag, attrs):
         blocking = False
+        if tag == 'th':
+            ptvHTMLParser.parserToggle = True
+        else:
+            ptvHTMLParser.parserToggle = False
+            
         if tag == "a" and attrs[0][0] == TITLE and attrs[1][0] == LINK:
             for url in blocked_urls:
                 if url == attrs[1][1]:
                     blocking = True
                     break
-            if not blocking:
-                #TEMPORARY
-                mTrain(attrs[0][1])
+
+            if not blocking:   
+                if ptvHTMLParser.toggle_mode == 'MTRAIN':
+                    mTrain(attrs[0][1])
+                elif ptvHTMLParser.toggle_mode == 'MTRAM':
+                    mTram(attrs[0][1])
+                elif ptvHTMLParser.toggle_mode == 'MBUS':
+                    mBus(attrs[0][1])
+                elif ptvHTMLParser.toggle_mode == 'RTRAIN':
+                    rTrain(attrs[0][1])
+                
         return
 
     def handle_endtag(self, tag):
         return
 
     def handle_data(self, data):
+        if ptvHTMLParser.parserToggle == True and \
+        data.lower() == 'metropolitan trains':
+            ptvHTMLParser.toggle_mode = 'MTRAIN'
+        elif data.lower() == 'metropolitan trams':
+            ptvHTMLParser.toggle_mode = 'MTRAM'
+        elif data.lower() == 'metropolitan buses':
+            ptvHTMLParser.toggle_mode = 'MBUS'
+        elif data.lower() == 'regional trains':
+            ptvHTMLParser.toggle_mode = 'RTRAIN'
+        
         return
 
-
 # Data Processing Function
-"""
-Function: build_output
-PARAM:
-  @ ptvdata, DICTIONARY data set.
-  @ key, what is your data part of?
-  @ data, concatenates your current data to lists of data existing for the given
-          key.
-
-RETURN:
-  [currently] prints formated output according to what you have supplied.
-"""
-def build_output(ptvdata, key, data):
-    while(True):
-        try:
-            ptvdata[key] = ptvdata[key].append(data)
-            break
-        except KeyError:
-            ptvdata[key] = []  
-    return
-
-"""
-dateHandler(string)
-PARAM:
-    @string, string TYPE only literal date formats.
-
-RETURN:
-    disruption dates @ DICT type
-"""
 def dateHandler(string):
-    
+    'identifies from - to dates from string literal'
     disruption_dates = {}
     
-    months = ['january', 'february', 'march', 'april', 'may', 'june', \
-                'july', 'august', 'september', 'october', 'november', \
-                'december']
-
-    words = string.split()
-    
-    # Housekeeping
-    for i in range(len(words)):
-        words[i] = words[i].strip(',').lower()
+    words = housekeeping(string)
         
     for word in words:
         try:
@@ -134,9 +154,9 @@ def dateHandler(string):
                     disruption_dates['type'] = 'CONTINUOUS'
                 if word == 'and':
                     disruption_dates['type'] = 'DISCRETE'
-                if word == 'until':
-                    disruption_dates['type'] = 'INDEFINITE'
-                    
+    if 'end' not in disruption_dates.keys():
+        disruption_dates['type'] = 'INDEFINITE'
+               
     return disruption_dates   
       
 # Main Module
@@ -153,10 +173,10 @@ parser.feed(page)
 
 
 # Tram
-def tram():
+def mTram():
     return
 # Buses
-def bus():
+def mBus():
     return
 
 
