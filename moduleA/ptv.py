@@ -114,27 +114,28 @@ def dateHandler(string):
                 'july', 'august', 'september', 'october', 'november', \
                 'december']
 
-    # Types
-    CONTINUOUS = 0
-    DISCRETE = 1
-
     words = string.split()
+    
+    # Housekeeping
+    for i in range(len(words)):
+        words[i] = words[i].strip(',').lower()
+        
     for word in words:
         try:
-            word.strip(",")
             day = int(word)
-
         except ValueError:
-            if word.lower() in months:
+            if word in months:
                 if 'start' not in disruption_dates.keys():
-                    disruption_dates['start'] = (day, word)
+                    disruption_dates['start'] = (day, word.upper())
                 else:
-                    disruption_dates['end'] = (day, word)  
+                    disruption_dates['end'] = (day, word.upper())  
             else:
-                if word == '-':
-                    disruption_dates['type'] = CONTINUOUS
+                if word == '-' or word == '–': 
+                    disruption_dates['type'] = 'CONTINUOUS'
                 if word == 'and':
-                    disruption_dates['type'] = DISCRETE
+                    disruption_dates['type'] = 'DISCRETE'
+                if word == 'until':
+                    disruption_dates['type'] = 'INDEFINITE'
                     
     return disruption_dates   
       
