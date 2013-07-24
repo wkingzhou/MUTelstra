@@ -136,13 +136,58 @@ def mTram(string):
     routeDisruption['routes'] = tRoutes_list
     routeDisruption['stops'] = tStops_list
 
-    print 'Metropolitan Trams\n'
+    print 'Metropolitan Trams'
     print routeDisruption
     print dateHandler(string[index:])
                 
     return
 # Buses
 def mBus(string):
+    disruption_d = {}
+
+    # Lists
+    bRoutes_list = []
+
+    words = string.split()
+
+    # Toggle Vars.
+    toggle_route = False
+
+    # Disruption Keywords
+    keywords = ['relocation', 'diversion', 'closure']
+
+    for i in range(len(words)):
+        if words[i-2].lower() == 'bus' and (words[i-1].strip(',:').lower() == \
+        'route' or words[i-1].strip(',:').lower() == 'routes'):
+            toggle_route = True
+        
+        if toggle_route:
+            try:
+                int(words[i].strip(',: '))
+                bRoutes_list.append(words[i].strip(',: '))
+            except ValueError:
+                exception_chars = ['and', '-', '–']
+                if words[i].strip(',: ') not in exception_chars and \
+                '/' not in words[i]:
+                    toggle_route = False
+                else:
+                    if '/' in words[i]:
+                        bRoutes_list.append(words[i].strip(',: '))
+        
+        if ':' in words[i]:
+            index = i
+
+    disruption_d['routes'] = bRoutes_list
+
+    for word in keywords:
+        if word in words:
+            disruption_d['disruption_type'] = word
+
+    disruption_d['time'] = dateHandler(string[index:])
+
+    print 'Metropolitan Buses'
+    print disruption_d
+                    
     return
 # Regional Trains
 def rTrain(string):
