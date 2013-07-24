@@ -6,7 +6,6 @@
 # Renlord Y.
 ################################################################################
 import urllib
-import time
 
 from HTMLParser import HTMLParser
 
@@ -42,7 +41,9 @@ def mTrain(string):
     # train line services
     tLines = ['cranbourne', 'pakenham', 'werribee', 'williamstown', \
         'sandringham', 'frankston', 'craigieburn', 'alamein', \
-        'belgrave', 'lilydale', 'glen', 'waverley']
+        'belgrave', 'lilydale', 'glen', 'waverley', 'upfield', 'sunbury', \
+        'flemington', 'racecourse','morang', 'hurstbridge', 'stony', \
+        'melton']
     
     #time keys
     time = ['am', 'pm']
@@ -62,20 +63,83 @@ def mTrain(string):
             n = string.index(word)
             break
     
-    # Special Case: Glen Waverley processing.
+    # Special Case Processing, double-worded Train Lines.
     if 'Glen' in affected_lines:
         correction = affected_lines.index('Glen')
         affected_lines[correction] = 'Glen Waverley'
         affected_lines.remove('Waverley')
+    if 'Morang' in affected_lines:
+        correction = affected_lines.index('Morang')
+        affected_lines[correction] = 'South Morang'
+    if 'Stony' in affected_lines:
+        correction = affected_lines.index('Stony')
+        affected_lines[correction] = 'Stony Point'
+    if 'Flemington' in affected_lines:
+        correction = affected_lines.index('Flemington')
+        affected_lines[correction] = 'Flemington Racecourse'
+        affected_lines.remove('Racecourse')
         
     # DICTIONARY_TYPE
     affected_dates = dateHandler(string[n:])
     
+    print 'Metropolitan Trains'
     print affected_lines
     print affected_dates
 
 # Tram
 def mTram(string):
+    # Tram Disruption Type
+    disruption = ['closure', 'delays']
+
+    words = string.split()
+
+    # disruption dictionary per case
+    routeDisruption = {}
+
+    # Tram Stops Lists
+    tStops_list = []
+    tRoutes_list = []
+
+    # Toggling Vars.
+    toggle_tramstop = False
+    toggle_routes = False
+
+    for i in range(len(words)):
+        if words[i-2] == 'tram' and words[i-1] == 'stop':
+            toggle_tramstop = True
+
+        if words[i-1].lower() == 'routes' or words[i-1].lower() == 'route':
+            toggle_routes = True
+
+        if toggle_tramstop:
+            try:
+                tStops_list.append(int(words[i].strip(',: ')))
+            except ValueError:
+                exception_chars = ['and', '-', '–']
+                if words[i].strip(',: ').lower() not in exception_chars:
+                    toggle_tramstop = False
+
+        if toggle_routes:
+            try:
+                tRoutes_list.append(int(words[i].strip(',: ')))
+            except ValueError:
+                exception_chars = ['and', '-', '–']
+                if words[i].strip(',: ').lower() not in exception_chars:
+                    toggle_routes = False
+
+        if ':' in words[i]:
+            index = i
+        
+        if words[i] in disruption:
+            routeDisruption['disruption_type'] = words[i]
+
+    routeDisruption['routes'] = tRoutes_list
+    routeDisruption['stops'] = tStops_list
+
+    print 'Metropolitan Trams\n'
+    print routeDisruption
+    print dateHandler(string[index:])
+                
     return
 # Buses
 def mBus(string):
@@ -86,8 +150,6 @@ def rTrain(string):
 
 # HTML Parser
 class ptvHTMLParser(HTMLParser):
-
-    toggle_mode = 0
     parserToggle = False
     
     toggle_mode = 'DEFAULT'
@@ -171,13 +233,6 @@ toggle_data = False
 
 parser.feed(page)
 
-
-# Tram
-def mTram():
-    return
-# Buses
-def mBus():
-    return
 
 
 
