@@ -54,6 +54,7 @@ class victrafficHTMLParser(HTMLParser):
                 victrafficHTMLParser.linfo3 = ''
                 victrafficHTMLParser.lstart = ''
                 victrafficHTMLParser.lupdated = ''
+                victrafficHTMLParser.index += 1
                 victrafficHTMLParser.location = data
                 victrafficHTMLParser.datalevel = 1
             elif data == 'From:':
@@ -96,7 +97,7 @@ class victrafficHTMLParser(HTMLParser):
 
             infod = {"Type": victrafficHTMLParser.mode, "Location": victrafficHTMLParser.location, "Locality": victrafficHTMLParser.locality, "From": victrafficHTMLParser.lfrom, "To": victrafficHTMLParser.lto, "Near": victrafficHTMLParser.lnear, "Info1": victrafficHTMLParser.linfo1, "Info2": victrafficHTMLParser.linfo2, "Info3": victrafficHTMLParser.linfo3, "Started": victrafficHTMLParser.lstart, "Updated": victrafficHTMLParser.lupdated}
 
-            victrafficHTMLParser.dictofdicts.update(index=infod) #have not managed to append to dictionary yet
+            victrafficHTMLParser.dictofdicts[victrafficHTMLParser.index] = infod
 
 # Main Module
 page = urllib.urlopen("http://traffic.vicroads.vic.gov.au/nojs/")
