@@ -70,7 +70,7 @@ class ASXhtmlparser(HTMLParser):
                ASXhtmlparser.price2=False
               
           return
-#top 5 gain
+#top 5 declines
 page1 = urllib.urlopen("http://www.asx.com.au/asx/widget/topDeclines.do")
 page1=page1.read()
 parser=ASXhtmlparser()
@@ -89,7 +89,7 @@ ASXhtmlparser.name=False
 ASXhtmlparser.price0=False
 ASXhtmlparser.price1=True
 ASXhtmlparser.price2=False
-#top 5 declines
+#top 5 gain
 page2 = urllib.urlopen("http://www.asx.com.au/asx/widget/topGains.do")
 page2=page2.read()
 parser=ASXhtmlparser()
