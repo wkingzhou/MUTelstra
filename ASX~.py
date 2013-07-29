@@ -1,3 +1,4 @@
+
 import urllib
 
 from HTMLParser import HTMLParser
@@ -17,7 +18,7 @@ def display(name,price1,price2):
         else:
                  space1[i]='\r'
                  space2[i]='\r'
-    #forming a table of list
+    #forming a table of list (only up to 5 now)
     print name[0],name[1],name[2],name[3],name[4]
     print price1[0],space1[0],price1[1],space1[1],price1[2],space1[2],price1[3],space1[3],price1[4]
     print price2[0],space2[0],price2[1],space2[1],price2[2],space2[2],price2[3],space2[3],price2[4],'\n\n\n'
@@ -55,15 +56,15 @@ class ASXhtmlparser(HTMLParser):
       def handle_data(self,data):
           if ASXhtmlparser.title:
              print data
-          if ASXhtmlparser.name and data != '\r\n'and data!='\n\n'and data!='\n ':
+          if ASXhtmlparser.name and data[0] != '\r'and data[0]!='\n'and data[0]!='\t':
              ASXhtmlparser.ASX_name[ASXhtmlparser.n0]=data
              ASXhtmlparser.n0+=1
-          if ASXhtmlparser.price0 and ASXhtmlparser.price1 and data != '\r\n'and data!='\n\n'and data!='\n ' :
+          if ASXhtmlparser.price0 and ASXhtmlparser.price1 and data[0] != '\r'and data[0]!='\n'and data[0]!='\t' :
              ASXhtmlparser.ASX_price1[ASXhtmlparser.n1]=data
              ASXhtmlparser.n1+=1
              ASXhtmlparser.price1=False
              ASXhtmlparser.price2=True
-          elif ASXhtmlparser.price0 and ASXhtmlparser.price2 and data != '\r\n'and data!='\n\n'and data!='\n ':
+          elif ASXhtmlparser.price0 and ASXhtmlparser.price2 and data[0] != '\r'and data[0]!='\n'and data[0]!='\t':
                ASXhtmlparser.ASX_price2[ASXhtmlparser.n2]=data
                ASXhtmlparser.n2+=1
                ASXhtmlparser.price1=True
@@ -96,3 +97,26 @@ parser=ASXhtmlparser()
 parser.feed(page2)
 print 'Top 5 Gain'
 display(ASXhtmlparser.ASX_name,ASXhtmlparser.ASX_price1,ASXhtmlparser.ASX_price2)
+
+
+#renew gloable varibles
+ASXhtmlparser.ASX_name={}
+ASXhtmlparser.ASX_price1={}
+ASXhtmlparser.ASX_price2={}
+ASXhtmlparser.n0=0
+ASXhtmlparser.n1=0
+ASXhtmlparser.n2=0
+ASXhtmlparser.title=False
+ASXhtmlparser.name=False
+ASXhtmlparser.price0=False
+ASXhtmlparser.price1=True
+ASXhtmlparser.price2=False
+#top 50 total
+page2 = urllib.urlopen("http://www.asx.com.au/asx/widget/topCompanies.do")
+page2=page2.read()
+parser=ASXhtmlparser()
+parser.feed(page2)
+#hasn't arrange top 50 ones
+print ASXhtmlparser.ASX_name
+print ASXhtmlparser.ASX_price1
+print ASXhtmlparser.ASX_price2
